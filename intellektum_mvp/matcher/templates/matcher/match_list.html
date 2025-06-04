@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Potential Matches{% endblock %}
+{% block content %}
+  <h2>Potential Matches</h2>
+  {% if matches %}
+    <ul>
+      {% for match_data in matches %}
+        <li>
+          <strong>{{ match_data.user.username }}</strong> ({{ match_data.user.profile.nickname }}) - Match Score: {{ match_data.score }}%
+          {% if match_data.common_items %}
+            <p>Common interests:
+              {% for item in match_data.common_items %}
+                {{ item }}{% if not forloop.last %}, {% endif %}
+              {% endfor %}
+            </p>
+          {% endif %}
+          <p><a href="{% url 'start_conversation' user_id=match_data.user.id %}">Message {{ match_data.user.username }}</a></p>
+          <hr>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No potential matches found at the moment. Try personalizing your profile more or swiping on items!</p>
+  {% endif %}
+{% endblock %}

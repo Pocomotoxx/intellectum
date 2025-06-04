@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}My Conversations{% endblock %}
+{% block content %}
+  <h2>My Conversations</h2>
+  {% if conversations %}
+    <ul>
+      {% for conv_data in conversations %}
+        <li>
+          <a href="{% url 'conversation_detail' conv_data.conversation_obj.id %}">
+            Conversation with {{ conv_data.other_user.username }}
+          </a>
+          <p>Last message: {{ conv_data.last_message_content|truncatechars:50 }}
+          {% if conv_data.unread_count > 0 %}<strong>({{ conv_data.unread_count }} unread)</strong>{% endif %}</p>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>You have no conversations yet.</p>
+  {% endif %}
+  <p><a href="#">Find users to message (link to be implemented)</a></p>
+{% endblock %}

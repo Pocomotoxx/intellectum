@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Conversation with {{ other_user.username }}{% endblock %}
+{% block content %}
+  <h2>
+    Conversation with {{ other_user.username }}
+    {% if other_user_profile.profile_picture_url %}
+        {% if show_other_user_pic %}
+            <img src="{{ other_user_profile.profile_picture_url }}" alt="{{ other_user.username }}'s pic" style="width:50px; height:50px; border-radius:50%;">
+        {% else %}
+            (Picture hidden)
+        {% endif %}
+    {% endif %}
+  </h2>
+
+  <div id="messages-area" style="height: 300px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; margin-bottom:10px;">
+    {% for message in messages %}
+      <p><strong>{{ message.sender.username }}</strong> ({{ message.timestamp|date:"SHORT_DATETIME_FORMAT" }}):<br>
+      {{ message.content|linebreaksbr }}</p>
+    {% endfor %}
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ message_form.as_p }}
+    <button type="submit" name="send_message">Send</button>
+  </form>
+
+  <hr>
+  <p>Messages sent by you: {{ request.user == conversation.user1|yesno:conversation.messages_sent_by_user1,conversation.messages_sent_by_user2 }}</p>
+  <p>Messages sent by {{ other_user.username }}: {{ request.user == conversation.user1|yesno:conversation.messages_sent_by_user2,conversation.messages_sent_by_user1 }}</p>
+  <p>Images revealed: {{ conversation.images_are_revealed|yesno:"Yes,No" }}</p>
+
+  {% if not conversation.images_are_revealed and conversation.can_request_early_reveal %}
+    <form method="post">
+        {% csrf_token %}
+        {% if request.user == conversation.user1 and not conversation.user1_requests_reveal_at_10 %}
+            <button type="submit" name="request_reveal">Request Early Image Reveal</button>
+        {% elif request.user == conversation.user2 and not conversation.user2_requests_reveal_at_10 %}
+            <button type="submit" name="request_reveal">Request Early Image Reveal</button>
+        {% endif %}
+        {% if request.user == conversation.user1 and conversation.user1_requests_reveal_at_10 %} (You requested reveal) {% endif %}
+        {% if request.user == conversation.user2 and conversation.user2_requests_reveal_at_10 %} (You requested reveal) {% endif %}
+    </form>
+  {% endif %}
+
+  <p><a href="{% url 'conversation_list' %}">Back to Conversations</a></p>
+{% endblock %}

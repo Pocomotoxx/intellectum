@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}{{ event.title }}{% endblock %}
+{% block content %}
+  <h2>{{ event.title }}</h2>
+  <p><strong>Date:</strong> {{ event.event_date|date:"N j, Y, P" }}</p>
+  <p><strong>Location:</strong> {{ event.location }}</p>
+  <p><strong>Description:</strong><br>{{ event.description|linebreaksbr }}</p>
+
+  <h3>Participation</h3>
+  <form method="post">
+    {% csrf_token %}
+    {% if user_participation %}
+      <p>You are currently: <strong>{{ user_participation.get_status_display }}</strong></p>
+      <button type="submit" name="remove_participation" value="1">Remove my status</button> or change to:
+    {% else %}
+      <p>Indicate your status:</p>
+    {% endif %}
+    {% for value, display_name in status_choices %}
+        {% if not user_participation or user_participation.status != value %}
+            <button type="submit" name="status" value="{{ value }}">{{ display_name }}</button>
+        {% endif %}
+    {% endfor %}
+  </form>
+
+  <h4>Who's Going/Interested:</h4>
+  <ul>
+    {% for p in participations %}
+      <li>{{ p.user.username }} - {{ p.get_status_display }}
+          (<a href="{% url 'start_conversation' user_id=p.user.id %}">Message</a>)
+      </li>
+    {% empty %}
+      <li>No one has indicated participation yet.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}
