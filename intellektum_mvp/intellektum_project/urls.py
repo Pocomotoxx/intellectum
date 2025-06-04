@@ -26,4 +26,5 @@ urlpatterns = [
     path('swipe/', include('swipe.urls')),
     path('matcher/', include('matcher.urls')),
     path('community/', include('community.urls')),
+    path('api/community/', include('community.api_urls')),
 ]
